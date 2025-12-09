@@ -1,2 +1,70 @@
+import { use } from "react";
+
 //want to see databases in mongodb
-show dbs
+show dbs;
+
+//create new database 6A18
+use 6A18;
+
+//create new collection students
+db.createCollection("students");
+
+//insert one document into students collection
+db.students.insertOne({
+    id: 101,
+    name: "Susruthi",
+    course: "MERN",
+    age: 22,
+    city: "Bangalore",
+    department: "CSE"
+})
+
+//fetch all documents from students collection
+db.students.find();
+
+db.students.insertMany(
+    [
+        {
+            id: 102,
+            name: "Anitha",
+            course: "Python",
+            age: 21,
+            city: "Chennai",
+            department: "Sales"
+        },
+        {
+            id: 103,
+            name: "Rakesh",
+            course: "IOT",
+            age: 23,
+            city: "Hyderabad",
+            department: "Marketing"
+        },
+        {
+            id: 104,
+            name: "Priya",
+            course: "MEAN",
+            age: 22,
+            city: "Mumbai",
+            department: "HR"
+        },
+        {
+            id: 105,
+            name: "Vikram",
+            course: "MERN",
+            age: 24,
+            city: "Pune",
+            department: "CSE"
+        }
+,    ]
+)
+
+
+db.students.updateOne({id:105},{$set:{marks:90}})
+//update Many document in students collection
+db.students.updateMany({},{$set:{marks:0}})
+//fetch all documents from students whose marks greater than 50
+db.students.find({marks:{$gt:50}}).count();
+
+//delete one document from students collection
+db.students.deleteOne({id:105});
