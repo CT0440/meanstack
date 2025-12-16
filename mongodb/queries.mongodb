@@ -1,8 +1,0 @@
-use parul
-
-db.createCollection("students")
-db.students.insertOne({
-    id: 101,
-    name: "rajan",
-    course: "MERN",
-})

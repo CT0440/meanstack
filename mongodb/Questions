@@ -1,5 +1,3 @@
- Execute all queries in vscode using db.employees. Use insertOne(), insertMany(), find(), updateOne(), updateMany(), deleteOne(), deleteMany() for CRUD. Apply operators like $gt, $in, $regex, $elemMatch, $set, $push, $pull, $inc. Create indexes with createIndex().
-
 CRUD Operations (Questions 1-15)
 Insert one employee document for "Alice Johnson" (email: alice.johnson@company.com, age: 28, department: "HR", salary: 65000).
 

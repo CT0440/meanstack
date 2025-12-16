@@ -1,0 +1,54 @@
+Indexing
+
+* It checks every document in the collection one by one.
+* Queries are slower, especially as the collection grows.
+* CPU and memory usage increase.
+* Multiple matching documents cause more unnecessary scans.
+* totalDocsExamined equals almost the whole collection even if only a few documents match.
+
+Types of Indexing
+
+Single-Field Index
+Index on a single field.
+db.collection.createIndex({ fieldName: 1 })  // 1 → ascending
+db.collection.createIndex({ fieldName: -1 }) // -1 → descending
+
+Compound Index
+Index on multiple fields (order matters).
+db.collection.createIndex({ field1: 1, field2: -1 })
+Query benefits if it matches the prefix fields of the index.
+
+Unique Index
+Prevents duplicate values.
+db.collection.createIndex({ email: 1 }, { unique: true })
+
+Multikey Index
+For array fields, indexes each element.
+db.collection.createIndex({ tags: 1 })
+
+Text Index
+For searching string content.
+db.collection.createIndex({ title: "text", description: "text" })
+
+Query example:
+db.collection.find({ $text: { $search: "mongodb" } })
+
+TTL (Time To Live) Index
+Automatically deletes documents after a specified time.
+db.collection.createIndex(
+{ createdAt: 1 },
+{ expireAfterSeconds: 3600 } // deletes after 1 hour
+)
+
+Partial Index
+Indexes only documents that match a filter.
+db.collection.createIndex(
+{ age: 1 },
+{ partialFilterExpression: { age: { $gte: 18 } } }
+)
+
+Check Indexes
+db.collection.getIndexes()
+
+Drop an Index
+db.collection.dropIndex("indexName")

@@ -5,21 +5,26 @@ show dbs
 use college
 
 //create collection or use existing collection
-db.createCollection("students")
+db.createCollection("faculty")
 
 //change collection name
 db.students.renameCollection("faculty")
 
 //insert document in collection
-db.students.insertOne(
+db.faculty.insertOne(
     {
         name: "Susruthi Kanaparthi", 
         age: 23, 
         major: "Computer Science"
     })
 
+db.faculty.find()
+
+//remove data in collection
+db.faculty.deleteMany({})
+
 //insert multiple documents in collection
-db.students.insertMany([
+db.faculty.insertMany([
     {
         name: "Prajwal sagar",
         age: 28,
@@ -152,13 +157,15 @@ db.students.insertMany([
     }
 
 ])
+
+
 //view documents in collection
 db.faculty.find()
 //view names of the faculty members and their majors only
 db.faculty.find({}, {name: 1,major:1, _id: 0})
 
 //find documents with major as Computer Science
-db.faculty.find({major: "Computer Science"})
+db.faculty.find({major: "Computer Science"},{name: 1,_id:0})
 
 //list out top5 senior faculty members based on age
 db.faculty.find().sort({age: -1}).limit(5)
@@ -246,11 +253,111 @@ db.faculty.find({}, {name: 1, Salary: 1, bonus: 1, _id: 0})
 //faculty who are not getting any bonus
 db.faculty.find({bonus: {$exists: false}})
 
-//Assign 2 Days Casual lave for Senior Faculty
-db.faculty.find(
-    {},
-    {_id: 0}
+
+db.faculty.find()
+//increment salary Rs.5000 for releivers
+db.faculty.updateMany(
+  { ExamDuty: "Reliever" },
+  { $inc: { Salary: 40000 } }
 )
+
+
+// Get all unique values for ExamDuty
+db.faculty.distinct("ExamDuty")
+
+//update salary for Junior Supervisor
+db.faculty.updateMany(
+  { ExamDuty: "Junior Supervisor" },
+  { $inc: { Salary: 70000 } }
+)
+
+//update salry for Senior Supervisor
+db.faculty.updateMany(
+  { ExamDuty: "Senior Supervisor" },
+  { $inc: { Salary: 90000 } }
+)
+
+//decrement 2000rs for Senior Supervisor
+db.faculty.updateMany(
+  { ExamDuty: "Senior Supervisor" },
+  { $inc: { Salary: -2000 } }
+)
+
+db.faculty.find(
+    { ExamDuty: "Senior Supervisor" },  
+    { Salary: 1, ExamDuty: 1, _id: 0 } 
+)
+
+//rename the Field value Exam Duty to Role
+db.faculty.updateMany(
+    {},
+    { $rename: { "ExamDuty": "Role" } }
+)
+
+db.faculty.distinct("Role")
+
+
+//update one filed
+db.faculty.updateMany(
+    {},
+    {$set:{bonus: 5000}}
+)
+
+//remove bonus filed
+db.faculty.updateMany(
+    {},
+    {$unset:{bonus: ""}}
+)
+
+
+db.faculty.find()
+
+//push Phd degree for all senior Supervisors
+db.faculty.updateMany(
+  { Role: "Senior Supervisor" },  
+  { $push: { degrees: "PhD" } }   
+)
+
+
+//indexing
+
+//single field indexing
+db.faculty.createIndex({name: 1})
+
+db.faculty.find({name : "Susruthi Kanaparthi"})
+
+db.faculty.find({name : "Susruthi Kanaparthi"}).explain("executionStats")
+
+//Compound Indexing
+db.faculty.createIndex({ Role: 1, Salary: -1 })
+
+db.faculty.find({ Role: "Junior Supervisor", Salary: 70000 })
+
+db.faculty.find({ Role: "Junior Supervisor", Salary: 70000 }).explain("executionStats")
+
+//Unique Indexing
+db.faculty.createIndex({ customId: 1 }, { unique: true })
+
+db.faculty.insertOne({ customId: "CT001", name: "Kabir Singh" })
+// Error: duplicate key
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
