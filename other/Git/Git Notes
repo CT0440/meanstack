@@ -1,0 +1,70 @@
+Git - version Control System
+1. Local Version or Local Copy
+2. Centralised Version COntrol System(CVCS)
+3. Distributed Version COntrol System(DVCS)
+
+Git is Distributed Version COntrol System
+Eg: GitLab, BitBucket etc
+
+
+Archives
+BitKeeper
+2005-Git - Famous for Branching
+
+Open Source and Proprietary project
+
+Git Commands
+Mac - Xcode
+Windows 
+cmd or powershell 
+--------------------
+git version - if git not installed
+Go to Browser and Install current version of git with Respective OS
+By Default git have one Branch that is Master
+
+>>Git Configiration
+git config --golbal list
+git config --global user.name "Your name"
+git config --global user.email "Your Email"
+
+1. Working Directory
+2. Stagging Area - mensioned Files
+3. remote Repository
+
+Commands
+--------
+>> git --version
+
+Initialize Empty Git Repository
+>> git init
+
+.git is hidden folder was created. 
+this is Git repository.
+
+>>git status
+(files Condition)
+
+empty git repository created at main branch
+>>git init -b main
+
+added the file into the Stagging area
+>>git add filename
+
+commit the changes
+>>git commit -m "your message"
+
+maintain the history
+>>git log
+
+
+
+
+
+
+
+
+
+
+
+
+

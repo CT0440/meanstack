@@ -318,6 +318,41 @@ db.faculty.updateMany(
   { $push: { degrees: "PhD" } }   
 )
 
+// with out Indexing
+
+// * It checks every document in the collection one by one.
+// * Queries are slower, especially as the collection grows.
+// * CPU and memory usage increase.
+// * Multiple matching documents cause more unnecessary scans.
+// * totalDocsExamined equals almost the whole collection even if only a few documents match.
+
+// Types of Indexing
+
+// Single-Field Index
+// Index on a single field.
+// db.collection.createIndex({ fieldName: 1 })  // 1 → ascending
+// db.collection.createIndex({ fieldName: -1 }) // -1 → descending
+
+// Compound Index
+// Index on multiple fields (order matters).
+// db.collection.createIndex({ field1: 1, field2: -1 })
+// Query benefits if it matches the prefix fields of the index.
+
+// Unique Index
+// Prevents duplicate values.
+// db.collection.createIndex({ email: 1 }, { unique: true })
+
+// Multikey Index
+// For array fields, indexes each element.
+// db.collection.createIndex({ tags: 1 })
+
+// Text Index
+// For searching string content.
+// db.collection.createIndex({ title: "text", description: "text" })
+
+// Query example:
+// db.collection.find({ $text: { $search: "mongodb" } })
+
 //without indexing
 
 db.faculty.find({},{name:1, _id: 0})
@@ -362,6 +397,27 @@ db.faculty.insertOne({ customId: "CT001", name: "Kabir Singh" })
 
 db.faculty.dropIndexes()
 
+// What is Schema Designing?
+
+// Schema Designing is the process of planning and defining the structure of data in a database—that is, what fields exist, their data types, relationships, constraints, and indexes—before storing data.
+
+// In simple words:
+
+// Schema design decides how your data is organized, stored, and accessed efficiently.
+
+// 🔹 Why Schema Designing is Important
+
+// Good schema design helps to:
+
+// Store data in a clean and consistent way
+
+// Avoid data duplication
+
+// Improve query performance
+
+// Make the application scalable and maintainable
+
+// Support security and data integrity
 //schema Designing and validation
 //when ever I created Collection with schema validation
 db.createCollection("faculty", {
