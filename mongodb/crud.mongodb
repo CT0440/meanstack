@@ -339,7 +339,7 @@ db.faculty.insertOne({
 })
 
 db.faculty.find({name: "Susruthi Kanaparthi"}).explain("executionStats")
-
+db.faculty.find()
 //single field indexing
 db.faculty.createIndex({name: 1})
 
@@ -360,7 +360,7 @@ db.faculty.createIndex({ customId: 1 }, { unique: true })
 db.faculty.insertOne({ customId: "CT001", name: "Kabir Singh" })
 // Error: duplicate key
 
-
+db.faculty.dropIndexes()
 
 //schema Designing and validation
 //when ever I created Collection with schema validation
@@ -439,6 +439,204 @@ db.runCommand({
   validator: {},
   validationLevel: "off"
 })
+
+// ==============================
+// Data Modeling in MongoDB
+// ==============================
+
+// DataModeling is the process of creating a visual representation or structure of the 
+// data in a database.
+// It helps in designing databases efficiently before actual implementation.
+
+// Here, Actual Implementation means:
+// - Data will be stored as collections
+// - Inside collections, data is stored as documents
+// - Inside documents, we have field-value pairs
+
+// DataModeling helps us understand:
+// 1. How data is stored
+// 2. How data is organized
+// 3. How data is related
+
+// Importance of Data Modeling:
+// 1. Prevent mistakes in database structure
+// 2. Improve performance and maintainability
+
+// ==============================
+// Embedded Data Modeling
+// ==============================
+
+// Create a collection "faculty_embedded" with schema validation
+db.createCollection("faculty_embedded", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["name", "age", "role", "department", "subjects"], // mandatory fields
+      properties: {
+        name: { bsonType: "string" },
+        age: { bsonType: "int" },
+        role: { bsonType: "string" },
+        department: { bsonType: "string" },
+        subjects: { // Array of embedded subject documents
+          bsonType: "array",
+          items: {
+            bsonType: "object",
+            required: ["name", "semester"], // Each subject must have name and semester
+            properties: {
+              name: { bsonType: "string" },
+              semester: { bsonType: "int" }
+            }
+          }
+        }
+      }
+    }
+  }
+})
+
+// ==============================
+// INSERT Documents (Embedded)
+// ==============================
+
+db.faculty_embedded.insertOne({
+  name: "Dr. Smith",
+  age: 45,
+  role: "Senior Lecturer",
+  department: "Physics",
+  subjects: [
+    { name: "Mechanics", semester: 1 },
+    { name: "Optics", semester: 2 }
+  ]
+})
+
+db.faculty_embedded.insertOne({
+  name: "Dr. Alice",
+  age: 38,
+  role: "Assistant Professor",
+  department: "Physics",
+  subjects: [
+    { name: "Thermodynamics", semester: 1 },
+    { name: "Optics", semester: 2 }
+  ]
+})
+
+
+db.faculty_embedded.find()
+
+// ==============================
+// QUERY (Embedded)
+// ==============================
+
+// Find all faculty who teach "Optics"
+db.faculty_embedded.find({ "subjects.name": "Optics" })
+
+// Find all faculty in Physics department teaching semester 1 subjects
+db.faculty_embedded.find({
+  department: "Physics",
+  "subjects.semester": 1
+})
+
+// ==============================
+// Referenced Data Modeling with Schema Design
+// ==============================
+
+// Data Modeling is the process of structuring data and defining relationships
+// In Referenced Data Modeling, related data is stored in separate collections
+// and linked via references (IDs). This is useful when data is shared or frequently updated.
+
+// ==============================
+// Step 1: Create 'subjects' collection with schema
+// ==============================
+db.createCollection("subjects", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",                 // Each document is an object
+      required: ["_id", "name", "semester"], // Mandatory fields
+      properties: {
+        _id: { bsonType: "int" },         // Unique subject ID
+        name: { bsonType: "string" },     // Name of the subject
+        semester: { bsonType: "int" }     // Semester number
+      }
+    }
+  }
+})
+
+// ==============================
+// Step 2: Create 'faculty_ref' collection with schema
+// ==============================
+db.createCollection("faculty_ref", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",                 // Each document is an object
+      required: ["name", "age", "role", "department", "subject_ids"], // Mandatory fields
+      properties: {
+        name: { bsonType: "string" },     // Faculty name
+        age: { bsonType: "int" },         // Faculty age
+        role: { bsonType: "string" },     // Faculty role (Assistant/Professor)
+        department: { bsonType: "string" }, // Faculty department
+        subject_ids: {                    // Array of references to subjects
+          bsonType: "array",
+          items: { bsonType: "int" }      // Each item must be an integer (_id from subjects)
+        }
+      }
+    }
+  }
+})
+
+// ==============================
+// Step 3: Insert documents into 'subjects' collection
+// ==============================
+
+db.subjects.insertMany([
+  { _id: 101, name: "Mechanics", semester: 1 },
+  { _id: 102, name: "Optics", semester: 2 },
+  { _id: 103, name: "Thermodynamics", semester: 1 }
+])
+
+// ==============================
+// Step 4: Insert documents into 'faculty_ref' collection
+// ==============================
+
+// Faculty documents reference subjects by their IDs
+db.faculty_ref.insertOne({
+  name: "Dr. Smith",
+  age: 45,
+  role: "Senior Lecturer",
+  department: "Physics",
+  subject_ids: [101, 102] // References to Mechanics and Optics
+})
+
+db.faculty_ref.insertOne({
+  name: "Dr. Alice",
+  age: 38,
+  role: "Assistant Professor",
+  department: "Physics",
+  subject_ids: [102, 103] // References to Optics and Thermodynamics
+})
+
+// ==============================
+// Step 5: Query using $lookup (join faculty with subjects)
+// ==============================
+
+// $lookup performs a left join between faculty_ref and subjects
+// 'localField' = subject_ids in faculty_ref
+// 'foreignField' = _id in subjects
+// 'as' = output array containing matched subjects
+db.faculty_ref.aggregate([
+  {
+    $lookup: {
+      from: "subjects",          // collection to join with
+      localField: "subject_ids", // field in faculty_ref
+      foreignField: "_id",       // field in subjects
+      as: "subjects_info"        // output array field
+    }
+  },
+  {
+    $match: { "subjects_info.name": "Optics" } // filter faculty teaching Optics
+  }
+])
+
+
+
 
 
 
